@@ -141,6 +141,7 @@
       hidden: false,
       y: 96,
       side: "right",
+      theme: "light",
       ...(result[PANEL_STATE_KEY] || {})
     };
   }

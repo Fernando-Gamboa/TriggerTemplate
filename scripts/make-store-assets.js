@@ -118,21 +118,23 @@ function base(content, width, height) {
 function promoSmall() {
   return base({
     css: `
-      body { background: #ffd400; }
-      .angle { position:absolute; right:-96px; top:-40px; width:242px; height:360px; background:#111827; transform:rotate(18deg); }
-      .logo { position:absolute; left:34px; top:42px; width:132px; height:96px; border-radius:30px; background:#fff; font-size:42px; box-shadow:none; }
-      h1 { position:absolute; left:34px; top:156px; margin:0; color:#111827; font-size:34px; line-height:1; letter-spacing:0; }
-      p { position:absolute; left:36px; top:196px; width:230px; margin:0; color:#344054; font-size:15px; line-height:1.35; font-weight:700; }
-      .plus { position:absolute; right:42px; top:54px; color:#22c55e; font-size:52px; font-weight:900; transform:rotate(8deg); }
-      .spark { position:absolute; right:46px; bottom:48px; width:58px; height:58px; border-radius:999px; background:#fff; display:grid; place-items:center; color:#111827; font-size:34px; font-weight:900; }
+      body { background: linear-gradient(135deg, #fff4a8 0%, #ffd400 45%, #111827 45%, #111827 100%); }
+      .logo { position:absolute; left:42px; top:48px; width:126px; height:92px; border-radius:28px; font-size:40px; }
+      .card { position:absolute; left:142px; top:82px; width:244px; height:136px; border-radius:24px; padding:24px 24px; box-shadow:0 18px 0 rgba(17,24,39,.12); }
+      .line { height:16px; border-radius:99px; background:#111827; margin-bottom:16px; }
+      .line.one { width:150px; }
+      .chip { display:inline-grid; height:50px; min-width:116px; place-items:center; border-radius:12px; background:#fff09a; color:#111827; font:900 30px/1 ui-monospace,SFMono-Regular,Menlo,monospace; }
+      .spark { position:absolute; right:34px; top:30px; color:#22c55e; font-size:54px; font-weight:900; transform:rotate(-11deg); }
+      .bubble { position:absolute; right:56px; bottom:28px; width:40px; height:40px; border-radius:999px; background:#22c55e; }
     `,
     body: `
-      <div class="angle"></div>
       <div class="logo">TT</div>
-      <h1>TriggerTemplate</h1>
-      <p>Reusable text snippets for Chrome.</p>
-      <div class="plus">+</div>
-      <div class="spark">↵</div>
+      <div class="card">
+        <div class="line one"></div>
+        <span class="chip">-test</span>
+      </div>
+      <div class="spark">+</div>
+      <div class="bubble"></div>
     `
   }, 440, 280);
 }

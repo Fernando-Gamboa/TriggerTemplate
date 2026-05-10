@@ -43,6 +43,12 @@ Upload `trigger-template.zip` in the Chrome Web Store Developer Dashboard.
 
 Templates are stored in `chrome.storage.sync`. This version caps the library at 100 templates and checks template size before saving. Very large templates may need to be shortened because Chrome Sync has a small per-item quota.
 
+## Report Bugs
+
+Please report issues through GitHub Issues:
+
+https://github.com/Fernando-Gamboa/TriggerTemplate/issues
+
 ## Notes
 
 This extension focuses on text expansion. Magical also includes broader workflow automation, team features, AI writing tools, and integrations; those are intentionally outside this initial version.

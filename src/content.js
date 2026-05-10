@@ -351,7 +351,8 @@
             ${isVariablePrompt ? variableFormTemplate() : isEditing ? formTemplate(editing) : libraryTemplate(filteredTemplates())}
           </div>
           <footer class="support-note">
-            Thank you ❤️ If this helps, you can buy me a coffee ☕ <span class="venmo-wrap">(<a href="https://venmo.com/u/fgamboa011" target="_blank" rel="noopener noreferrer">Venmo</a>)</span>
+            <div>Thank you ❤️ If this helps, you can buy me a coffee ☕ <span class="venmo-wrap">(<a href="https://venmo.com/u/fgamboa011" target="_blank" rel="noopener noreferrer">Venmo</a>)</span></div>
+            <div>Having issues? <a href="https://github.com/Fernando-Gamboa/TriggerTemplate/issues/new?template=bug_report.md" target="_blank" rel="noopener noreferrer">Report bug</a></div>
           </footer>
         </section>
       </div>
@@ -816,7 +817,8 @@
       .form-actions button{min-height:36px;border:0;border-radius:8px;padding:0 13px;background:var(--panel-text);color:var(--panel-bg);cursor:pointer}
       .form-actions .secondary{border:1px solid var(--panel-line);background:var(--panel-bg);color:var(--panel-text)}
       .form-actions .danger{margin-right:auto;background:#fee4e2;color:#b42318}
-      .support-note{display:block;padding:8px 8px;border-top:1px solid var(--panel-line);background:var(--panel-footer);color:var(--panel-muted);font-size:8.8px;line-height:1.25;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .support-note{display:grid;gap:2px;padding:8px 8px;border-top:1px solid var(--panel-line);background:var(--panel-footer);color:var(--panel-muted);font-size:8.8px;line-height:1.25;text-align:center}
+      .support-note div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .support-note .venmo-wrap{display:inline;min-width:0;white-space:nowrap;overflow:visible;text-overflow:clip}
       .support-note a{color:var(--panel-text);font-weight:800;text-decoration:none;white-space:nowrap}
       .support-note a:hover{text-decoration:underline}

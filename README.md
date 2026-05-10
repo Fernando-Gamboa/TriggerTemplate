@@ -1,4 +1,4 @@
-# Trigger Template
+# TriggerTemplate
 
 A local-first Chrome text expander inspired by Magical. Save a trigger like `-test`, type it into a text field, then press space, tab, or enter to replace it with the saved template.
 

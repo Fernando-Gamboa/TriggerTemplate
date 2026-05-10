@@ -322,11 +322,11 @@
       <div class="shell ${panelState.open ? "open" : ""} ${panelState.hidden ? "hidden-tab" : ""}" data-theme="${panelState.theme || "light"}" data-side="${panelState.side}" style="--panel-y:${clampPanelY(panelState.y)}px">
         <div class="tab-zone">
           <button class="tab-dismiss" type="button" data-action="dismiss-tab" aria-label="Hide side tab" title="Hide side tab">x</button>
-          <button class="tab" type="button" data-action="toggle" aria-label="Open Trigger Template">
+          <button class="tab" type="button" data-action="toggle" aria-label="Open TriggerTemplate">
             <span>TT</span>
           </button>
         </div>
-        <section class="panel" aria-label="Trigger Template panel">
+        <section class="panel" aria-label="TriggerTemplate panel">
           <header class="panel-header">
             <div>
               <button class="title-link" type="button" data-action="open-options" title="Open options">TriggerTemplate</button>

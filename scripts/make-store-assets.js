@@ -39,6 +39,12 @@ const pages = [
     width: 1280,
     height: 800,
     html: screenshot("tab")
+  },
+  {
+    name: "screenshot-hero-1280x800",
+    width: 1280,
+    height: 800,
+    html: heroScreenshot()
   }
 ];
 
@@ -167,6 +173,119 @@ function promoMarquee() {
       <div class="dot" style="left:54px;top:54px;"></div>
     `
   }, 1400, 560);
+}
+
+function heroScreenshot() {
+  return base({
+    css: `
+      body {
+        background:
+          radial-gradient(circle at 14% 18%, rgba(255, 212, 0, .42), transparent 28%),
+          radial-gradient(circle at 88% 78%, rgba(255, 212, 0, .24), transparent 30%),
+          linear-gradient(135deg, #fff9d7 0%, #ffffff 44%, #111827 44%, #111827 100%);
+      }
+      .stage {
+        position: absolute;
+        inset: 54px;
+        border-radius: 38px;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+        border: 2px solid rgba(216, 222, 233, .9);
+        box-shadow: 0 34px 80px rgba(17, 24, 39, .22);
+      }
+      .stage::after {
+        content: "";
+        position: absolute;
+        right: -130px;
+        top: -70px;
+        width: 560px;
+        height: 560px;
+        border-radius: 999px;
+        background: #ffd400;
+        opacity: .96;
+      }
+      .logo {
+        position: absolute;
+        left: 126px;
+        top: 166px;
+        width: 250px;
+        height: 180px;
+        border-radius: 46px;
+        font-size: 78px;
+        z-index: 2;
+        box-shadow: 0 26px 58px rgba(17, 24, 39, .18);
+      }
+      .copy {
+        position: absolute;
+        left: 430px;
+        top: 178px;
+        width: 590px;
+        z-index: 2;
+      }
+      h1 {
+        margin: 0;
+        color: #111827;
+        font-size: 76px;
+        line-height: .98;
+        font-weight: 900;
+        letter-spacing: 0;
+      }
+      .subtitle {
+        margin-top: 26px;
+        color: #344054;
+        font-size: 34px;
+        line-height: 1.2;
+        font-weight: 700;
+      }
+      .trigger {
+        position: absolute;
+        left: 430px;
+        top: 506px;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        width: 620px;
+        min-height: 86px;
+        padding: 20px 24px;
+        border-radius: 24px;
+        background: #ffffff;
+        border: 2px solid #d8dee9;
+        box-shadow: 0 18px 42px rgba(17, 24, 39, .14);
+        font-size: 28px;
+        color: #667085;
+      }
+      .tag {
+        font-size: 34px;
+        border-radius: 14px;
+        color: #111827;
+        white-space: nowrap;
+      }
+      .arrow {
+        color: #111827;
+        font-size: 38px;
+        font-weight: 900;
+      }
+      .result {
+        flex: 1;
+        min-width: 0;
+        font-size: 28px;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.12;
+      }
+    `,
+    body: `
+      <div class="stage">
+        <div class="logo">TT</div>
+        <div class="copy">
+          <h1>TriggerTemplate</h1>
+          <div class="subtitle">Save text once. Type a trigger. Insert it anywhere.</div>
+        </div>
+        <div class="trigger"><span class="tag">-test</span><span class="arrow">→</span><span class="result">Hello {name}, let's create some templates!</span></div>
+      </div>
+    `
+  }, 1280, 800);
 }
 
 function screenshot(mode) {

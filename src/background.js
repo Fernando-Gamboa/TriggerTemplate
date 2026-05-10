@@ -6,7 +6,7 @@ chrome.action.onClicked.addListener(async (tab) => {
   } catch (error) {
     await chrome.action.setTitle({
       tabId: tab.id,
-      title: "Trigger Template is not available on this page"
+      title: "TriggerTemplate is not available on this page"
     });
   }
 });

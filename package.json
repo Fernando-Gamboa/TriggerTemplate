@@ -1,0 +1,12 @@
+{
+  "name": "trigger-template-extension",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node --check src/background.js && node --check src/content.js && node --check src/shared.js && node --check src/options.js && node --check scripts/make-icons.js",
+    "icons": "node scripts/make-icons.js",
+    "store-assets": "node scripts/make-store-assets.js",
+    "storage-test-data": "node scripts/make-storage-test-data.js",
+    "package": "npm run check && npm run icons && rm -f trigger-template.zip && zip -r trigger-template.zip manifest.json options.html src/background.js src/content.js src/options.js src/shared.js src/styles.css assets"
+  }
+}

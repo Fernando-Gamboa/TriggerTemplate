@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trigger Template Options</title>
+    <link rel="stylesheet" href="src/styles.css">
+  </head>
+  <body class="options-shell">
+    <main class="options-layout">
+      <section class="options-main">
+        <header class="options-header">
+          <div>
+            <h1>Trigger Template</h1>
+            <p>Manage shortcuts that expand into saved templates across websites.</p>
+          </div>
+        </header>
+
+        <form id="templateForm" class="editor-form wide">
+          <input id="templateId" type="hidden">
+
+          <label for="titleInput">Trigger Name</label>
+          <input id="titleInput" type="text" autocomplete="off" placeholder="Test template" required>
+
+          <label for="triggerInput">Trigger Action</label>
+          <input id="triggerInput" type="text" autocomplete="off" placeholder="-test" required>
+
+          <label for="bodyInput">Template</label>
+          <textarea id="bodyInput" rows="8" placeholder="Hello, you can make ANYTHING a reusable template!" required></textarea>
+
+          <div class="form-actions">
+            <button id="cancelEdit" class="secondary hidden" type="button">Cancel</button>
+            <button id="saveTemplate" type="submit">Save template</button>
+          </div>
+        </form>
+
+        <section class="template-section" aria-label="Saved templates">
+          <div class="section-title">
+            <h2>Templates</h2>
+            <span id="templateCount">0</span>
+          </div>
+          <div id="emptyState" class="empty-state hidden">No templates yet.</div>
+          <ul id="templateList" class="template-list wide"></ul>
+        </section>
+      </section>
+
+      <aside class="options-panel">
+        <h2>Data</h2>
+        <p>Export a backup or import templates from another browser profile.</p>
+        <div class="stack">
+          <button id="exportTemplates" class="secondary" type="button">Export JSON</button>
+          <label class="file-button" for="importTemplates">Import JSON</label>
+          <input id="importTemplates" type="file" accept="application/json,.json">
+          <button id="clearTemplates" class="danger-button" type="button">Clear all templates</button>
+        </div>
+        <p id="statusMessage" class="status-message" role="status"></p>
+      </aside>
+    </main>
+
+    <script src="src/shared.js"></script>
+    <script src="src/options.js"></script>
+  </body>
+</html>

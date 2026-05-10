@@ -39,7 +39,7 @@ No remote code is used. All JavaScript, HTML, CSS, and assets are packaged with 
 
 ## Pre-Submission Checklist
 
-- Replace the contact placeholder in `PRIVACY_POLICY.md`.
+- Enable GitHub Pages and use `https://fernando-gamboa.github.io/TriggerTemplate/privacy.html` as the privacy policy URL.
 - Upload images from `store-assets/`:
   - `promo-small-440x280.png`
   - `promo-marquee-1400x560.png`

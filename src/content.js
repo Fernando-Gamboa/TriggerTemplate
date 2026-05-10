@@ -14,6 +14,7 @@
   let dragId = "";
   let tabWasDragged = false;
   let formDraft = null;
+  let pendingExpansion = null;
   let panelNotice = "";
   let storageStatus = { canCreate: true, message: "" };
 
@@ -98,6 +99,20 @@
     if (!template) return false;
 
     event.preventDefault();
+    const variables = extractVariables(template.body);
+    if (variables.length) {
+      pendingExpansion = {
+        template,
+        key,
+        variables,
+        replace: context.createReplacement(key)
+      };
+      editingId = "variables";
+      panelNotice = "";
+      setPanelState({ open: true, hidden: false });
+      return true;
+    }
+
     context.replaceToken(template.body, key);
     return true;
   }
@@ -134,17 +149,14 @@
         const selectionEnd = input.selectionEnd || selectionStart;
         const token = extractTrailingToken(input.value.slice(0, selectionStart));
         const start = selectionStart - token.length;
-        const replacement = body + delimiterForKey(key);
-        const nextValue = input.value.slice(0, start) + replacement + input.value.slice(selectionEnd);
-        const nextCaret = start + replacement.length;
-
-        setNativeValue(input, nextValue);
-        input.setSelectionRange(nextCaret, nextCaret);
-        input.dispatchEvent(new InputEvent("input", {
-          bubbles: true,
-          inputType: "insertReplacementText",
-          data: replacement
-        }));
+        replaceTextInputRange(input, start, selectionEnd, body + delimiterForKey(key));
+      },
+      createReplacement(key) {
+        const selectionStart = input.selectionStart || 0;
+        const selectionEnd = input.selectionEnd || selectionStart;
+        const token = extractTrailingToken(input.value.slice(0, selectionStart));
+        const start = selectionStart - token.length;
+        return (body) => replaceTextInputRange(input, start, selectionEnd, body + delimiterForKey(key));
       }
     };
   }
@@ -163,8 +175,30 @@
       },
       replaceToken(body, key) {
         replaceContentEditableToken(root, body + delimiterForKey(key));
+      },
+      createReplacement(key) {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return () => false;
+        const tokenRange = findTokenRange(root, selection.getRangeAt(0));
+        return (body) => replaceContentEditableRange(root, tokenRange, body + delimiterForKey(key));
       }
     };
+  }
+
+  function replaceTextInputRange(input, start, end, replacement) {
+    if (!input.isConnected) return false;
+    const nextValue = input.value.slice(0, start) + replacement + input.value.slice(end);
+    const nextCaret = start + replacement.length;
+
+    setNativeValue(input, nextValue);
+    input.focus({ preventScroll: true });
+    input.setSelectionRange(nextCaret, nextCaret);
+    input.dispatchEvent(new InputEvent("input", {
+      bubbles: true,
+      inputType: "insertReplacementText",
+      data: replacement
+    }));
+    return true;
   }
 
   function extractTrailingToken(text) {
@@ -190,9 +224,18 @@
     const tokenRange = findTokenRange(root, range);
     if (!tokenRange) return;
 
+    replaceContentEditableRange(root, tokenRange, replacement);
+  }
+
+  function replaceContentEditableRange(root, tokenRange, replacement) {
+    if (!root.isConnected || !tokenRange) return false;
+    const selection = window.getSelection();
+    if (!selection) return false;
+
     tokenRange.deleteContents();
     tokenRange.insertNode(document.createTextNode(replacement));
     tokenRange.collapse(false);
+    root.focus({ preventScroll: true });
     selection.removeAllRanges();
     selection.addRange(tokenRange);
     root.dispatchEvent(new InputEvent("input", {
@@ -200,6 +243,32 @@
       inputType: "insertReplacementText",
       data: replacement
     }));
+    return true;
+  }
+
+  function extractVariables(body) {
+    const seen = new Set();
+    const variables = [];
+    const pattern = /\{([a-zA-Z][a-zA-Z0-9 _-]{0,39})\}/g;
+    let match;
+
+    while ((match = pattern.exec(body))) {
+      const name = match[1].trim();
+      const key = name.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        variables.push(name);
+      }
+    }
+
+    return variables;
+  }
+
+  function applyVariables(body, values) {
+    return body.replace(/\{([a-zA-Z][a-zA-Z0-9 _-]{0,39})\}/g, (match, name) => {
+      const key = name.trim().toLowerCase();
+      return Object.prototype.hasOwnProperty.call(values, key) ? values[key] : match;
+    });
   }
 
   function findTokenRange(root, caretRange) {
@@ -245,7 +314,8 @@
   function renderPanel() {
     if (!shadow) return;
     const editing = templates.find((template) => template.id === editingId);
-    const isEditing = Boolean(editingId);
+    const isVariablePrompt = editingId === "variables" && pendingExpansion;
+    const isEditing = Boolean(editingId) && !isVariablePrompt;
 
     shadow.innerHTML = `
       <style>${panelStyles()}</style>
@@ -270,7 +340,7 @@
               <button class="icon" type="button" data-action="close" aria-label="Close" title="Close">x</button>
             </div>
           </header>
-          ${isEditing ? "" : `
+          ${isEditing || isVariablePrompt ? "" : `
             <div class="search-wrap">
               <input class="search" type="search" placeholder="Search by Trigger Name" value="${escapeAttribute(searchTerm)}">
               <p class="hint">Activate a trigger with Space, Tab, or Enter.</p>
@@ -278,7 +348,7 @@
           `}
           <div class="content">
             ${panelNotice ? `<div class="notice">${escapeHtml(panelNotice)}</div>` : ""}
-            ${isEditing ? formTemplate(editing) : libraryTemplate(filteredTemplates())}
+            ${isVariablePrompt ? variableFormTemplate() : isEditing ? formTemplate(editing) : libraryTemplate(filteredTemplates())}
           </div>
           <footer class="support-note">
             Thank you ❤️ If this helps, you can buy me a coffee ☕ <span class="venmo-wrap">(<a href="https://venmo.com/u/fgamboa011" target="_blank" rel="noopener noreferrer">Venmo</a>)</span>
@@ -330,7 +400,7 @@
     };
 
     return `
-      <form class="form">
+      <form class="form template-form">
         <input name="id" type="hidden" value="${escapeAttribute(template ? template.id : "")}">
         <label>
           <span>Trigger Name</span>
@@ -353,12 +423,36 @@
     `;
   }
 
+  function variableFormTemplate() {
+    const template = pendingExpansion.template;
+    return `
+      <form class="form variable-form">
+        <div class="variable-intro">
+          <strong>Fill variables</strong>
+          <p>${escapeHtml(template.title)}</p>
+        </div>
+        ${pendingExpansion.variables.map((name, index) => `
+          <label>
+            <span>${escapeHtml(name)}</span>
+            <input name="variable-${index}" type="text" autocomplete="off" required placeholder="${escapeAttribute(name)}">
+          </label>
+        `).join("")}
+        <div class="variable-preview">${escapeHtml(template.body)}</div>
+        <div class="form-actions">
+          <button class="secondary" type="button" data-action="cancel-variable">Cancel</button>
+          <button type="submit">Insert</button>
+        </div>
+      </form>
+    `;
+  }
+
   function bindPanelEvents() {
     const shell = shadow.querySelector(".shell");
     const tab = shadow.querySelector(".tab");
     const panel = shadow.querySelector(".panel");
     const search = shadow.querySelector(".search");
-    const form = shadow.querySelector(".form");
+    const form = shadow.querySelector(".template-form");
+    const variableForm = shadow.querySelector(".variable-form");
 
     shadow.querySelectorAll("[data-action='toggle']").forEach((button) => {
       button.addEventListener("click", (event) => {
@@ -420,6 +514,14 @@
         renderPanel();
       });
     });
+    shadow.querySelectorAll("[data-action='cancel-variable']").forEach((button) => {
+      button.addEventListener("click", () => {
+        editingId = "";
+        pendingExpansion = null;
+        panelNotice = "";
+        renderPanel();
+      });
+    });
     shadow.querySelectorAll("[data-action='delete']").forEach((button) => {
       button.addEventListener("click", async () => {
         templates = templates.filter((template) => template.id !== button.dataset.id);
@@ -460,6 +562,28 @@
         formDraft = null;
         searchTerm = "";
         await saveTemplatesAndRender();
+      });
+    }
+
+    if (variableForm) {
+      const firstInput = variableForm.querySelector("input");
+      if (firstInput) firstInput.focus();
+
+      variableForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const values = {};
+        const data = new FormData(variableForm);
+
+        pendingExpansion.variables.forEach((name, index) => {
+          values[name.trim().toLowerCase()] = String(data.get(`variable-${index}`) || "");
+        });
+
+        const completed = applyVariables(pendingExpansion.template.body, values);
+        const inserted = pendingExpansion.replace(completed);
+        pendingExpansion = null;
+        editingId = "";
+        panelNotice = inserted ? "" : "Could not insert the completed template. Try the trigger again.";
+        renderPanel();
       });
     }
 
@@ -654,7 +778,7 @@
       p{margin:0}
       .title-link{display:block;margin:0;padding:0;border:0;background:transparent;color:var(--panel-text);cursor:pointer;font:800 16px/1.2 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:left}
       .title-link:hover{text-decoration:underline;text-underline-offset:3px}
-      p{margin-top:3px;color:var(--panel-muted);font-size:12px}
+      p{margin-top:10px;color:var(--panel-muted);font-size:12px}
       .header-actions{display:flex;align-items:center;gap:8px}
       button{font:inherit}
       .icon{width:34px;height:34px;border:1px solid var(--panel-line);border-radius:8px;background:var(--panel-bg);color:var(--panel-text);cursor:pointer;font-size:20px;line-height:1}
@@ -683,6 +807,9 @@
       .empty{margin:14px;padding:24px;border:1px dashed var(--panel-line);border-radius:10px;color:var(--panel-muted);text-align:center}
       .notice{margin:12px 14px 0;padding:10px 11px;border:1px solid #fecdca;border-radius:8px;background:#fff2f1;color:#b42318;font-size:12px;line-height:1.35}
       .form{min-height:0;flex:1;display:flex;flex-direction:column;gap:12px;padding:14px;overflow-y:auto;overscroll-behavior:contain}
+      .variable-intro strong{display:block;color:var(--panel-text);font-size:14px;line-height:1.25}
+      .variable-intro p{margin-top:3px;color:var(--panel-muted);font-size:12px}
+      .variable-preview{padding:10px 11px;border:1px solid var(--panel-line);border-radius:8px;background:var(--panel-soft);color:var(--panel-muted);font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}
       label span{display:block;margin-bottom:6px;color:var(--panel-text);font-size:12px;font-weight:750}
       textarea{resize:vertical;min-height:154px}
       .form-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:4px}
